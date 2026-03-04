@@ -1,0 +1,50 @@
+@startuml ManagerActions
+
+actor Manager
+participant "CreateWhiteBoard (Manager)" as ManagerApp
+participant "ServerInterface (RMI)" as ServerStub
+participant "WhiteboardServerServant" as ServerImpl
+participant "WhiteboardServer" as ServerLogic
+participant "ClientServant" as UserStub
+
+== Kick user ==
+Manager -> ServerStub : kickUser(username)
+ServerStub -> ServerImpl : kickUser(...)
+ServerImpl -> ServerLogic : kickUser(...)
+ServerLogic -> UserStub : forceDisconnect(reason)
+
+== Save (smart save) ==
+Manager -> ServerStub : saveOrUpdateCanvas()
+ServerStub -> ServerImpl : saveOrUpdateCanvas()
+ServerImpl -> ServerLogic : saveOrUpdateCanvas()
+
+== Save As (manual path) ==
+Manager -> ServerStub : saveNewWhiteboard(path)
+ServerStub -> ServerImpl : saveNewWhiteboard(...)
+ServerImpl -> ServerLogic : saveNewWhiteboard(path)
+
+== Load whiteboard ==
+Manager -> ServerStub : loadWhiteboard(path)
+ServerStub -> ServerImpl : loadWhiteboard(...)
+ServerImpl -> ServerLogic : loadWhiteboard(path)
+ServerLogic -> UserStub : receiveCanvas(loadedCanvas)
+
+== New whiteboard ==
+Manager -> ServerStub : createNewWhiteBoard(managerName)
+ServerStub -> ServerImpl : createNewWhiteBoard(...)
+ServerImpl -> ServerLogic : createNewWhiteBoard(managerName)
+ServerLogic -> UserStub : receiveCanvas(emptyCanvas)
+
+
+== Shutdown whiteboard ==
+Manager -> ServerStub : shutdownBoard(managerName)
+ServerStub -> ServerImpl : shutdownBoard(...)
+ServerImpl -> ServerLogic : shutdownBoard(managerName)
+ServerLogic -> ServerLogic : remove manager from clients
+ServerLogic -> ServerLogic : broadcastUserList()
+ServerLogic -> ServerLogic : clearAllCanvas()
+loop for each client in clients
+    ServerLogic -> UserStub : forceDisconnect("Manager has already closed the whiteboard.")
+end
+
+@enduml

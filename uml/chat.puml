@@ -1,0 +1,21 @@
+@startuml ChatHistoryLoad
+
+actor User
+participant "MemberJoinWhiteBoard" as UserApp
+participant "ServerInterface (RMI)" as ServerStub
+participant "WhiteboardServerServant" as ServerImpl
+participant "WhiteboardServer" as ServerLogic
+participant "ClientServant" as UserStub
+participant "WhiteBoardClient" as UserLogic
+
+== Load chat history when user joins ==
+User -> UserApp : main(args)
+UserApp -> ServerStub : getChatHistory()
+ServerStub -> ServerImpl : getChatHistory()
+ServerImpl -> ServerLogic : getChatHistory()
+ServerLogic --> ServerImpl : List<Message>
+ServerImpl --> ServerStub : List<Message>
+UserApp -> UserLogic : displayHistoryMessage(...)
+UserLogic -> UserStub : display message in ChatPanel
+
+@enduml

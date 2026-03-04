@@ -1,0 +1,33 @@
+@startuml DrawAndChat
+
+actor User
+participant "Two main args()" as UserApp
+participant "ClientServant" as UserStub
+participant "WhiteBoardClient" as UserLogic
+participant "ServerInterface (RMI)" as ServerStub
+participant "WhiteboardServerServant" as ServerImpl
+participant "WhiteboardServer" as ServerLogic
+participant "ManagerServant" as ManagerStub
+participant "OtherClientServant" as OtherUserStub
+
+== User draws on canvas ==
+User -> UserApp : draw something (e.g. rectangle)
+UserApp -> ServerStub : sendAllUser(DrawAction)
+ServerStub -> ServerImpl : sendAllUser(...)
+ServerImpl -> ServerLogic : sendAllUser(...)
+ServerLogic -> UserStub : receiveDraw(DrawAction)
+ServerLogic -> OtherUserStub : receiveDraw(DrawAction)
+ServerLogic -> ManagerStub : receiveDraw(DrawAction)
+ServerLogic -> UserApp : localEchoDraw(DrawAction)
+
+== User sends chat message ==
+User -> UserApp : type and send message
+UserApp -> ServerStub : sendChat(sender, msg)
+ServerStub -> ServerImpl : sendChat(...)
+ServerImpl -> ServerLogic : sendChat(...)
+ServerLogic -> UserStub : receiveMessage(sender, msg)
+ServerLogic -> OtherUserStub : receiveMessage(sender, msg)
+ServerLogic -> ManagerStub : receiveMessage(sender, msg)
+ServerLogic -> UserApp : localEchoMessage(sender, msg)
+
+@enduml
